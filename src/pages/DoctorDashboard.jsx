@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { getPatientDisplayProfile } from "../services/patientService";
+import { getAbsentTokens, markTokenAbsent } from "../services/queueService";
 
 export default function DoctorDashboard() {
   const [currentToken, setCurrentToken] = useState(11);
+  const [absentTokens, setAbsentTokens] = useState(getAbsentTokens);
   const patient = getPatientDisplayProfile();
 
   const queue = [9, 10, 11, 12, 13, 14, 15].map((token) => ({
@@ -11,7 +13,7 @@ export default function DoctorDashboard() {
       token === patient.token
         ? patient.name
         : "Patient Queue Entry",
-    dob: token === patient.token ? patient.dob : "Not provided",
+    age: token === patient.token ? patient.age : "Not provided",
   }));
 
   const callNext = () => {
@@ -22,16 +24,24 @@ export default function DoctorDashboard() {
     setCurrentToken(currentToken + 1);
   };
 
+  const markAbsent = (token) => {
+    setAbsentTokens(markTokenAbsent(token));
+
+    if (token === currentToken) {
+      setCurrentToken(currentToken + 1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
 
       {/* Header */}
 
-      <header className="bg-white border-b shadow-sm">
+      <header className="bg-[#1B3A5C]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
           <div>
-            <h1 className="text-2xl font-bold text-blue-900">
+            <h1 className="text-[18px] font-bold text-white">
               MediQueue
             </h1>
           </div>
@@ -39,11 +49,11 @@ export default function DoctorDashboard() {
           <div className="flex items-center gap-4">
 
             <div className="text-right">
-              <p className="font-semibold">
+              <p className="font-semibold text-white">
                 Dr Ahmad Mir
               </p>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-white/60">
                 General Medicine
               </p>
             </div>
@@ -108,7 +118,9 @@ export default function DoctorDashboard() {
 
                   <p className="text-2xl font-bold">
                     {queue.filter(
-                      (entry) => entry.token > currentToken
+                      (entry) =>
+                        entry.token > currentToken &&
+                        !absentTokens.includes(entry.token)
                     ).length}
                   </p>
                 </div>
@@ -142,6 +154,12 @@ export default function DoctorDashboard() {
               </p>
 
               <div className="space-y-3">
+                <button
+                  onClick={() => markAbsent(currentToken)}
+                  className="w-full border border-blue-600 text-blue-600 py-3 rounded-lg"
+                >
+                  Mark Absent
+                </button>
 
                 <button
                   onClick={markComplete}
@@ -189,10 +207,19 @@ export default function DoctorDashboard() {
                       "bg-green-50 border-green-300";
                   }
 
-                  if (entry.token === currentToken) {
+                  if (
+                    entry.token === currentToken &&
+                    !absentTokens.includes(entry.token)
+                  ) {
                     status = "Current";
                     style =
                       "bg-blue-100 border-blue-400";
+                  }
+
+                  if (absentTokens.includes(entry.token)) {
+                    status = "Absent";
+                    style =
+                      "bg-[#F1F5F9] text-[#64748B] border-transparent";
                   }
 
                   return (
@@ -213,7 +240,7 @@ export default function DoctorDashboard() {
                           </p>
 
                           <p className="text-sm text-gray-500">
-                            DOB: {entry.dob} - Token #{entry.token}
+                            Age: {entry.age} - Token #{entry.token}
                           </p>
 
                         </div>

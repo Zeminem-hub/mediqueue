@@ -1,6 +1,36 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { savePatientProfile } from "../services/patientService";
+
 export default function PatientLogin() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    age: "",
+    phone: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setError("");
+
+    try {
+      savePatientProfile(formData);
+      navigate("/otp");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-5">
       <div className="w-full max-w-md">
@@ -16,34 +46,79 @@ export default function PatientLogin() {
         <div className="bg-white rounded-xl shadow-md border p-8">
           
           <h2 className="text-xl font-semibold mb-2">
-            Enter your phone number to continue
+            Enter your details to continue
           </h2>
 
           <p className="text-gray-500 mb-6">
             You'll receive a one-time code to verify your number.
           </p>
 
-          {/* Phone Input */}
-          <div className="flex border rounded-lg overflow-hidden mb-6">
-            
-            <div className="px-4 flex items-center bg-gray-100 border-r">
-              +91
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
+
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter patient name"
+                className="w-full border rounded-lg p-3 outline-none focus:border-blue-500"
+              />
             </div>
 
-            <input
-              type="tel"
-              placeholder="10-digit mobile number"
-              className="flex-1 p-3 outline-none"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Age
+              </label>
 
-          {/* Button */}
-          <button
-  onClick={() => navigate("/otp")}
-  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
->
-  Send OTP
-</button>
+              <input
+                type="number"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                placeholder="Enter age"
+                min="1"
+                className="w-full border rounded-lg p-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number
+              </label>
+
+              <div className="flex border rounded-lg overflow-hidden">
+                <div className="px-4 flex items-center bg-gray-100 border-r">
+                  +91
+                </div>
+
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="10-digit mobile number"
+                  className="flex-1 p-3 outline-none"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-500">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+            >
+              Send OTP
+            </button>
+          </form>
 
           {/* Staff Login */}
           <div className="mt-5 text-center">

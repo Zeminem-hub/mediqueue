@@ -1,10 +1,13 @@
 import { getPatientDisplayProfile } from "../services/patientService";
+import { getAbsentTokens } from "../services/queueService";
 
 export default function LiveQueueBoard() {
   const patient = getPatientDisplayProfile();
+  const absentTokens = getAbsentTokens();
   const currentToken = 11;
   const myToken = patient.token;
   const totalTokens = 23;
+  const isMyTokenAbsent = absentTokens.includes(myToken);
 
   const tokens = Array.from(
     { length: totalTokens },
@@ -13,15 +16,15 @@ export default function LiveQueueBoard() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <header className="bg-white border-b shadow-sm sticky top-0 z-40">
+      <header className="bg-[#1B3A5C] sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-5 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-blue-900">
+            <h1 className="text-[18px] font-bold text-white">
               MediQueue
             </h1>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
+          <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center font-semibold">
             {patient.name.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -32,7 +35,10 @@ export default function LiveQueueBoard() {
           <h2 className="text-xl font-semibold flex items-center gap-2">
             Dr Ahmad Mir
 
-            <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+            <span className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></span>
+            <span className="text-xs font-medium text-[#059669]">
+              Live
+            </span>
           </h2>
 
           <p className="text-gray-500 mt-1">
@@ -49,7 +55,8 @@ export default function LiveQueueBoard() {
             </p>
 
             <p className="text-sm text-gray-500">
-              DOB: {patient.dob} - Token #{myToken}
+              Age: {patient.age} - Token #{myToken}
+              {isMyTokenAbsent ? " - Absent" : ""}
             </p>
           </div>
         </section>
@@ -104,35 +111,42 @@ export default function LiveQueueBoard() {
           <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
             {tokens.map((token) => {
               let style =
-                "bg-blue-100 text-blue-900 border-blue-200";
+                "bg-[#DBEAFE] text-[#1E40AF] border-transparent";
 
               let label = null;
 
               if (token < currentToken) {
                 style =
-                  "bg-green-100 text-green-800 border-green-300";
+                  "bg-[#D1FAE5] text-[#065F46] border-transparent";
 
                 label = "Done";
               }
 
               if (token === currentToken) {
                 style =
-                  "bg-yellow-100 text-yellow-800 border-2 border-yellow-400 scale-110";
+                  "bg-[#FEF3C7] text-[#92400E] border-2 border-[#F59E0B] scale-110";
 
                 label = "Now";
               }
 
-              if (token === myToken) {
+              if (token === myToken && !absentTokens.includes(token)) {
                 style =
-                  "bg-purple-100 text-purple-800 border-2 border-purple-400 scale-105";
+                  "bg-[#EDE9FE] text-[#4C1D95] border-2 border-[#7C3AED] scale-105";
 
                 label = "You";
+              }
+
+              if (absentTokens.includes(token)) {
+                style =
+                  "bg-[#F1F5F9] text-[#64748B] border-transparent";
+
+                label = "Absent";
               }
 
               return (
                 <div
                   key={token}
-                  className={`h-14 w-14 rounded-lg border flex flex-col items-center justify-center transition ${style}`}
+                  className={`h-14 w-14 rounded-lg border flex flex-col items-center justify-center transition [font-variant-numeric:tabular-nums] ${style}`}
                 >
                   <span className="font-bold">
                     {String(token).padStart(2, "0")}
@@ -167,6 +181,11 @@ export default function LiveQueueBoard() {
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
               Waiting
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-[#F1F5F9] rounded"></div>
+              Absent
             </div>
           </div>
 

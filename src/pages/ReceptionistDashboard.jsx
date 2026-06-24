@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPatientDisplayProfile } from "../services/patientService";
+import { getAbsentTokens, markTokenAbsent } from "../services/queueService";
 
 export default function ReceptionistDashboard() {
   const navigate = useNavigate();
   const patientProfile = getPatientDisplayProfile();
+  const [absentTokens, setAbsentTokens] = useState(getAbsentTokens);
   const [selectedDoctor, setSelectedDoctor] = useState(1);
 
   const doctors = [
@@ -41,25 +43,25 @@ export default function ReceptionistDashboard() {
     {
       token: 11,
       patient: "Patient Queue Entry",
-      dob: "Not provided",
+      age: "Not provided",
       status: "Current",
     },
     {
       token: 12,
       patient: "Patient Queue Entry",
-      dob: "Not provided",
+      age: "Not provided",
       status: "Next",
     },
     {
       token: patientProfile.token,
       patient: patientProfile.name,
-      dob: patientProfile.dob,
+      age: patientProfile.age,
       status: "Waiting",
     },
     {
       token: 14,
       patient: "Patient Queue Entry",
-      dob: "Not provided",
+      age: "Not provided",
       status: "Waiting",
     },
   ]);
@@ -72,7 +74,7 @@ export default function ReceptionistDashboard() {
       {
         token: newToken,
         patient: "New Patient",
-        dob: "Not provided",
+        age: "Not provided",
         status: "Waiting",
       },
     ]);
@@ -80,6 +82,17 @@ export default function ReceptionistDashboard() {
 
   const removePatient = (token) => {
     setQueue(queue.filter((p) => p.token !== token));
+  };
+
+  const markAbsent = (token) => {
+    setAbsentTokens(markTokenAbsent(token));
+    setQueue((currentQueue) =>
+      currentQueue.map((patient) =>
+        patient.token === token
+          ? { ...patient, status: "Absent" }
+          : patient
+      )
+    );
   };
 
   const doctor = doctors.find(
@@ -91,15 +104,15 @@ export default function ReceptionistDashboard() {
 
       {/* Header */}
 
-      <header className="bg-white border-b shadow-sm">
+      <header className="bg-[#1B3A5C]">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
           <div>
-            <h1 className="text-2xl font-bold text-blue-900">
+            <h1 className="text-[18px] font-bold text-white">
               MediQueue
             </h1>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-white/60">
               Reception • iQuasar Health
             </p>
           </div>
@@ -267,10 +280,17 @@ export default function ReceptionistDashboard() {
 
               <div className="divide-y">
 
-                {queue.map((patient) => (
+                {queue.map((patient) => {
+                  const isAbsent =
+                    absentTokens.includes(patient.token) ||
+                    patient.status === "Absent";
+
+                  return (
                   <div
                     key={patient.token}
-                    className="p-4 flex justify-between items-center"
+                    className={`p-4 flex justify-between items-center ${
+                      isAbsent ? "bg-[#F1F5F9] text-[#64748B]" : ""
+                    }`}
                   >
 
                     <div className="flex items-center gap-4">
@@ -285,23 +305,35 @@ export default function ReceptionistDashboard() {
                         </p>
 
                         <p className="text-sm text-gray-500">
-                          DOB: {patient.dob} - {patient.status}
+                          Age: {patient.age} -{" "}
+                          {isAbsent ? "Absent" : patient.status}
                         </p>
                       </div>
 
                     </div>
 
-                    <button
-                      onClick={() =>
-                        removePatient(patient.token)
-                      }
-                      className="text-red-500"
-                    >
-                      Remove
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={() => markAbsent(patient.token)}
+                        disabled={isAbsent}
+                        className="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg"
+                      >
+                        Mark Absent
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          removePatient(patient.token)
+                        }
+                        className="text-red-500"
+                      >
+                        Remove
+                      </button>
+                    </div>
 
                   </div>
-                ))}
+                  );
+                })}
 
               </div>
 

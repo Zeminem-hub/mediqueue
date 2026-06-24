@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import PatientLogin from "./pages/PatientLogin";
 import OtpVerification from "./pages/OtpVerification";
-import PatientDetails from "./pages/PatientDetails";
 import ClinicSelection from "./pages/ClinicSelection";
 import DoctorSelection from "./pages/DoctorSelection";
 import QueueConfirmation from "./pages/QueueConfirmation";
@@ -21,7 +20,6 @@ function App() {
       <Routes>
         <Route path="/" element={<PatientLogin />} />
         <Route path="/otp" element={<OtpVerification />} />
-        <Route path="/patient-details" element={<PatientDetails />} />
         <Route path="/clinic" element={<ClinicSelection />} />
         <Route path="/doctors" element={<DoctorSelection />} />
         <Route path="/confirmation" element={<QueueConfirmation />} />

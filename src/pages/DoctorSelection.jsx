@@ -30,12 +30,12 @@ export default function DoctorSelection() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      <div className="bg-white border-b shadow-sm p-4">
-        <h1 className="text-2xl font-bold text-blue-900">
+      <div className="bg-[#1B3A5C] p-4">
+        <h1 className="text-[18px] font-bold text-white">
           iQuasar Health
         </h1>
 
-        <p className="text-gray-500">
+        <p className="text-white/60">
           Choose your doctor
         </p>
       </div>

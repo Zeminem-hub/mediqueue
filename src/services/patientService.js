@@ -1,13 +1,14 @@
 const PATIENT_PROFILE_KEY = "mediqueue_patient_profile";
 
-export function savePatientProfile({ name, dob }) {
-  if (!name || !dob) {
-    throw new Error("Patient name and date of birth are required.");
+export function savePatientProfile({ name, age, phone }) {
+  if (!name || !age || !phone) {
+    throw new Error("Patient name, age, and phone number are required.");
   }
 
   const profile = {
     name,
-    dob,
+    age,
+    phone,
     token: 13,
   };
 
@@ -34,7 +35,8 @@ export function getPatientDisplayProfile() {
   return (
     getPatientProfile() || {
       name: "Patient Queue Entry",
-      dob: "Not provided",
+      age: "Not provided",
+      phone: "Not provided",
       token: 13,
     }
   );

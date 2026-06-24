@@ -27,7 +27,7 @@ export default function QueueConfirmation() {
         </div>
 
         <h1 className="text-3xl font-bold text-blue-900 mb-2">
-          You're in the queue!
+          You're in the queue.
         </h1>
 
         <p className="text-gray-500 mb-6">
@@ -44,7 +44,7 @@ export default function QueueConfirmation() {
           </p>
 
           <p className="text-sm text-gray-500">
-            DOB: {patient.dob}
+            Age: {patient.age}
           </p>
         </div>
 
@@ -53,8 +53,8 @@ export default function QueueConfirmation() {
             Your Token
           </p>
 
-          <div className="bg-purple-700 text-white rounded-xl p-6 border-2 border-purple-700 shadow-md">
-            <span className="text-7xl font-bold">
+          <div className="bg-[#EDE9FE] text-[#4C1D95] rounded-lg p-6 border-2 border-[#7C3AED]">
+            <span className="text-[32px] font-bold [font-variant-numeric:tabular-nums]">
               {patient.token}
             </span>
           </div>

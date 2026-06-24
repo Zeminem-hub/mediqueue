@@ -27,7 +27,7 @@ export default function OtpVerification() {
         </div>
 
         <button
-  onClick={() => navigate("/patient-details")}
+  onClick={() => navigate("/clinic")}
   className="w-full bg-blue-600 text-white py-3 rounded-lg"
 >
   Verify Code

@@ -7,8 +7,8 @@ export default function ClinicSelection() {
     <div className="min-h-screen bg-gray-50">
 
       {/* Header */}
-      <div className="bg-white border-b p-4 shadow-sm">
-        <h1 className="text-2xl font-bold text-blue-900">
+      <div className="bg-[#1B3A5C] p-4">
+        <h1 className="text-[18px] font-bold text-white">
           MediQueue
         </h1>
       </div>
