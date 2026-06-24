@@ -1,43 +1,61 @@
-const PATIENT_PROFILE_KEY = "mediqueue_patient_profile";
+import { supabase } from '../lib/supabase'
+import { normalizeIndianPhone } from '../lib/phone'
 
-export function savePatientProfile({ name, age, phone }) {
-  if (!name || !age || !phone) {
-    throw new Error("Patient name, age, and phone number are required.");
-  }
+const PENDING_PATIENT_KEY = 'mediqueue_pending_patient'
 
-  const profile = {
-    name,
-    age,
-    phone,
-    token: 13,
-  };
-
-  localStorage.setItem(PATIENT_PROFILE_KEY, JSON.stringify(profile));
-  return profile;
+function throwIfError(error) {
+  if (error) throw error
 }
 
-export function getPatientProfile() {
-  const storedProfile = localStorage.getItem(PATIENT_PROFILE_KEY);
+export function savePendingPatientRegistration({ name, age, phone }) {
+  const normalizedPhone = normalizeIndianPhone(phone)
+  const parsedAge = Number(age)
 
-  if (!storedProfile) {
-    return null;
+  if (!name?.trim()) throw new Error('Full name is required.')
+  if (!Number.isInteger(parsedAge) || parsedAge < 1 || parsedAge > 120) {
+    throw new Error('Enter an age between 1 and 120.')
   }
+  if (!normalizedPhone) throw new Error('Enter a valid 10-digit Indian mobile number.')
 
+  const pending = { name: name.trim(), age: parsedAge, phone: normalizedPhone }
+  sessionStorage.setItem(PENDING_PATIENT_KEY, JSON.stringify(pending))
+  return pending
+}
+
+export function getPendingPatientRegistration() {
   try {
-    return JSON.parse(storedProfile);
+    return JSON.parse(sessionStorage.getItem(PENDING_PATIENT_KEY) || 'null')
   } catch {
-    localStorage.removeItem(PATIENT_PROFILE_KEY);
-    return null;
+    sessionStorage.removeItem(PENDING_PATIENT_KEY)
+    return null
   }
 }
 
-export function getPatientDisplayProfile() {
-  return (
-    getPatientProfile() || {
-      name: "Patient Queue Entry",
-      age: "Not provided",
-      phone: "Not provided",
-      token: 13,
-    }
-  );
+export function clearPendingPatientRegistration() {
+  sessionStorage.removeItem(PENDING_PATIENT_KEY)
+}
+
+export async function upsertPatientProfile({ name, age, phone }) {
+  const { data, error } = await supabase.rpc('upsert_patient_profile', {
+    p_name: name,
+    p_age: Number(age),
+    p_phone_number: normalizeIndianPhone(phone),
+  })
+
+  throwIfError(error)
+  return data
+}
+
+export async function getOwnPatient() {
+  const userId = (await supabase.auth.getUser()).data.user?.id
+  if (!userId) return null
+
+  const { data, error } = await supabase
+    .from('patients')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  throwIfError(error)
+  return data
 }

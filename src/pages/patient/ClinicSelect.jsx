@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Building2, MapPin, Search, Stethoscope } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AppShell from '../../components/AppShell'
-import { getClinics, getDoctors } from '../../services/mediqueueService'
+import { listClinics } from '../../services/clinicService'
+import { listDoctors } from '../../services/doctorService'
 
 export default function ClinicSelect() {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export default function ClinicSelect() {
   useEffect(() => {
     async function load() {
       try {
-        const [clinicRows, doctorRows] = await Promise.all([getClinics(), getDoctors()])
+        const [clinicRows, doctorRows] = await Promise.all([listClinics(), listDoctors()])
         setClinics(clinicRows)
         setDoctorCounts(doctorRows.reduce((counts, doctor) => ({
           ...counts,
@@ -34,6 +35,11 @@ export default function ClinicSelect() {
     clinic.name.toLowerCase().includes(search.toLowerCase())
   )), [clinics, search])
 
+  function selectClinic(clinicId) {
+    sessionStorage.setItem('selectedClinicId', clinicId)
+    navigate('/doctors')
+  }
+
   return (
     <AppShell
       eyebrow="Patient check-in"
@@ -43,12 +49,7 @@ export default function ClinicSelect() {
     >
       <div className="search-box">
         <Search size={19} />
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search clinics"
-          aria-label="Search clinics"
-        />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search clinics" aria-label="Search clinics" />
       </div>
 
       {error && <div className="notice notice--error">{error}</div>}
@@ -57,19 +58,12 @@ export default function ClinicSelect() {
         {loading && [1, 2].map((item) => <div className="selection-card skeleton" key={item} />)}
 
         {!loading && visibleClinics.map((clinic) => (
-          <button
-            className="selection-card"
-            key={clinic.id}
-            onClick={() => navigate(`/clinics/${clinic.id}/doctors`)}
-          >
+          <button className="selection-card" key={clinic.id} onClick={() => selectClinic(clinic.id)}>
             <span className="selection-icon"><Building2 size={24} /></span>
             <span className="selection-content">
               <strong>{clinic.name}</strong>
               <span><MapPin size={15} /> Clinic location</span>
-              <span className="availability">
-                <Stethoscope size={15} />
-                {doctorCounts[clinic.id] || 0} doctors available
-              </span>
+              <span className="availability"><Stethoscope size={15} />{doctorCounts[clinic.id] || 0} doctors available</span>
             </span>
             <span className="selection-arrow"><ArrowRight size={20} /></span>
           </button>

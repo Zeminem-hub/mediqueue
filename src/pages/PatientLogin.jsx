@@ -1,141 +1,132 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { savePatientProfile } from "../services/patientService";
+import { useState } from 'react'
+import { Activity, ArrowRight, BriefcaseMedical, Smartphone } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { savePendingPatientRegistration } from '../services/patientService'
 
 export default function PatientLogin() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    age: "",
-    phone: "",
-  });
-  const [error, setError] = useState("");
+  const navigate = useNavigate()
+  const { sendOtp } = useAuth()
+  const [formData, setFormData] = useState({ name: '', age: '', phone: '' })
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  };
+  function handleChange(event) {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError("");
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setError('')
+    setIsSubmitting(true)
 
     try {
-      savePatientProfile(formData);
-      navigate("/otp");
+      const pending = savePendingPatientRegistration(formData)
+      await sendOtp(pending.phone)
+      navigate('/otp')
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-5">
-      <div className="w-full max-w-md">
-        
-        {/* Logo */}
-        <div className="flex justify-center items-center mb-6">
-          <h1 className="text-4xl font-bold text-blue-900">
-            MediQueue
-          </h1>
+    <div className="auth-layout">
+      <section className="auth-story">
+        <a className="brand brand--dark" href="/">
+          <span className="brand-mark"><Activity size={20} strokeWidth={2.5} /></span>
+          <span>MediQueue</span>
+        </a>
+
+        <div className="auth-story-copy">
+          <p className="eyebrow eyebrow--mint">iQuasar Health queue access</p>
+          <h1>Join the clinic queue from your phone.</h1>
+          <p>Patients verify by mobile OTP. Doctors and receptionists sign in separately with clinic staff accounts.</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-xl shadow-md border p-8">
-          
-          <h2 className="text-xl font-semibold mb-2">
-            Enter your details to continue
-          </h2>
+        <div className="auth-proof">
+          <div><Smartphone size={17} /><span>OTP-only patient access</span></div>
+          <div><BriefcaseMedical size={17} /><span>Separate staff login</span></div>
+        </div>
+      </section>
 
-          <p className="text-gray-500 mb-6">
-            You'll receive a one-time code to verify your number.
-          </p>
+      <section className="auth-panel">
+        <div className="auth-card">
+          <div className="auth-mobile-brand">
+            <span className="brand-mark"><Activity size={20} /></span>
+            MediQueue
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="segmented-control" aria-label="Entry flow">
+            <button className="active" type="button">Continue as Patient</button>
+            <button type="button" onClick={() => navigate('/roles')}>Staff Login</button>
+          </div>
+
+          <div className="auth-heading">
+            <span className="auth-icon"><Smartphone size={22} /></span>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
+              <h2>Patient registration</h2>
+              <p>Enter your details and verify your mobile number before joining a queue.</p>
+            </div>
+          </div>
 
+          <form className="form-stack" onSubmit={handleSubmit}>
+            <label className="field">
+              <span>Full name</span>
               <input
-                type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Enter patient name"
-                className="w-full border rounded-lg p-3 outline-none focus:border-blue-500"
+                autoComplete="name"
+                required
               />
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Age
-              </label>
-
+            <label className="field">
+              <span>Age</span>
               <input
-                type="number"
                 name="age"
+                type="number"
+                min="1"
+                max="120"
                 value={formData.age}
                 onChange={handleChange}
                 placeholder="Enter age"
-                min="1"
-                className="w-full border rounded-lg p-3 outline-none focus:border-blue-500"
+                required
               />
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
+            <label className="field">
+              <span>Mobile number</span>
+              <input
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="10-digit mobile number"
+                autoComplete="tel"
+                required
+              />
+            </label>
 
-              <div className="flex border rounded-lg overflow-hidden">
-                <div className="px-4 flex items-center bg-gray-100 border-r">
-                  +91
-                </div>
+            {error && <div className="form-message form-message--error">{error}</div>}
 
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="10-digit mobile number"
-                  className="flex-1 p-3 outline-none"
-                />
-              </div>
-            </div>
-
-            {error && (
-              <p className="text-sm text-red-500">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
-            >
-              Send OTP
+            <button className="button button--primary button--wide" disabled={isSubmitting}>
+              {isSubmitting ? 'Sending OTP...' : 'Continue as Patient'}
+              {!isSubmitting && <ArrowRight size={18} />}
             </button>
           </form>
 
-          {/* Staff Login */}
-          <div className="mt-5 text-center">
-            <button
-  onClick={() => navigate("/roles")}
-  className="text-blue-600 hover:text-blue-800"
->
-  Login as Doctor or Receptionist →
-</button>
-          </div>
+          <p className="auth-footnote">
+            <button className="link-button" type="button" onClick={() => navigate('/roles')}>
+              Login as Doctor or Receptionist
+            </button>
+          </p>
         </div>
-
-        <p className="text-center text-gray-500 mt-5">
-          No app download needed. Works in your browser.
-        </p>
-
-      </div>
+      </section>
     </div>
-  );
+  )
 }

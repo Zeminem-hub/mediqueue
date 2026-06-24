@@ -1,56 +1,47 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import ProtectedRoute from './components/ProtectedRoute'
-import LoadingScreen from './components/LoadingScreen'
+import { AuthProvider } from './context/AuthContext'
+import { OtpPendingRoute, PublicOnly, RoleRoute } from './components/ProtectedRoute'
 
-import Login from './pages/auth/Login'
+import PatientLogin from './pages/PatientLogin'
+import OtpVerification from './pages/OtpVerification'
+import RoleSelection from './pages/RoleSelection'
+import DoctorLogin from './pages/DoctorLogin'
+import ReceptionistLogin from './pages/ReceptionistLogin'
 import ClinicSelect from './pages/patient/ClinicSelect'
 import DoctorSelect from './pages/patient/DoctorSelect'
 import QueueBoard from './pages/patient/QueueBoard'
+import QueueConfirmation from './pages/QueueConfirmation'
 import DoctorDashboard from './pages/doctor/DoctorDashboard'
 import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard'
+import CreateDoctor from './pages/CreateDoctor'
 import Unauthorized from './pages/Unauthorized'
-
-function HomeRedirect() {
-  const { user, profile, loading } = useAuth()
-  if (loading) return <LoadingScreen />
-  if (!user) return <Navigate to="/login" replace />
-  if (profile?.role === 'doctor') return <Navigate to="/doctor/dashboard" replace />
-  if (profile?.role === 'receptionist') return <Navigate to="/receptionist/dashboard" replace />
-  return <Navigate to="/clinics" replace />
-}
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<PublicOnly><PatientLogin /></PublicOnly>} />
+      <Route path="/otp" element={<OtpPendingRoute><OtpVerification /></OtpPendingRoute>} />
+      <Route path="/roles" element={<PublicOnly><RoleSelection /></PublicOnly>} />
+      <Route path="/doctor-login" element={<PublicOnly><DoctorLogin /></PublicOnly>} />
+      <Route path="/receptionist-login" element={<PublicOnly><ReceptionistLogin /></PublicOnly>} />
       <Route path="/unauthorized" element={<Unauthorized />} />
-      <Route path="/clinics" element={
-        <ProtectedRoute allowedRoles={['patient']}>
-          <ClinicSelect />
-        </ProtectedRoute>
-      } />
-      <Route path="/clinics/:clinicId/doctors" element={
-        <ProtectedRoute allowedRoles={['patient']}>
-          <DoctorSelect />
-        </ProtectedRoute>
-      } />
-      <Route path="/queue/:doctorId" element={
-        <ProtectedRoute allowedRoles={['patient']}>
-          <QueueBoard />
-        </ProtectedRoute>
-      } />
-      <Route path="/doctor/dashboard" element={
-        <ProtectedRoute allowedRoles={['doctor']}>
-          <DoctorDashboard />
-        </ProtectedRoute>
-      } />
-      <Route path="/receptionist/dashboard" element={
-        <ProtectedRoute allowedRoles={['receptionist']}>
-          <ReceptionistDashboard />
-        </ProtectedRoute>
-      } />
-      <Route path="/" element={<HomeRedirect />} />
+
+      <Route element={<RoleRoute allowedRoles={['patient']} />}>
+        <Route path="/clinic" element={<ClinicSelect />} />
+        <Route path="/doctors" element={<DoctorSelect />} />
+        <Route path="/confirmation" element={<QueueConfirmation />} />
+        <Route path="/queue" element={<QueueBoard />} />
+      </Route>
+
+      <Route element={<RoleRoute allowedRoles={['doctor']} />}>
+        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+      </Route>
+
+      <Route element={<RoleRoute allowedRoles={['receptionist']} />}>
+        <Route path="/receptionist-dashboard" element={<ReceptionistDashboard />} />
+        <Route path="/create-doctor" element={<CreateDoctor />} />
+      </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

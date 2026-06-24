@@ -1,32 +1,86 @@
-const ABSENT_TOKENS_KEY = "mediqueue_absent_tokens";
+import { supabase } from '../lib/supabase'
 
-export function getAbsentTokens() {
-  const storedTokens = localStorage.getItem(ABSENT_TOKENS_KEY);
-
-  if (!storedTokens) {
-    return [];
-  }
-
-  try {
-    return JSON.parse(storedTokens);
-  } catch {
-    localStorage.removeItem(ABSENT_TOKENS_KEY);
-    return [];
-  }
+function throwIfError(error) {
+  if (error) throw error
 }
 
-export function isTokenAbsent(token) {
-  return getAbsentTokens().includes(token);
+export async function getQueueForDoctor(doctorId) {
+  const { data, error } = await supabase.rpc('get_queue_for_doctor', {
+    p_doctor_id: doctorId,
+  })
+
+  throwIfError(error)
+  return data || []
 }
 
-export function markTokenAbsent(token) {
-  const absentTokens = getAbsentTokens();
+export async function joinQueue(doctorId) {
+  const { data, error } = await supabase.rpc('join_queue', {
+    p_doctor_id: doctorId,
+  })
 
-  if (absentTokens.includes(token)) {
-    return absentTokens;
+  throwIfError(error)
+  return Array.isArray(data) ? data[0] : data
+}
+
+export async function callNextPatient(doctorId) {
+  const { data, error } = await supabase.rpc('call_next_patient', {
+    p_doctor_id: doctorId,
+  })
+
+  throwIfError(error)
+  return Array.isArray(data) ? data[0] || null : data
+}
+
+export async function completeCurrentPatient(doctorId) {
+  const { error } = await supabase.rpc('complete_current_patient', {
+    p_doctor_id: doctorId,
+  })
+
+  throwIfError(error)
+}
+
+export async function addWalkInPatient({ doctorId, name, age, phone }) {
+  const { data, error } = await supabase.rpc('add_walk_in_patient', {
+    p_doctor_id: doctorId,
+    p_name: name,
+    p_age: Number(age),
+    p_phone_number: phone || null,
+  })
+
+  throwIfError(error)
+  return Array.isArray(data) ? data[0] : data
+}
+
+export async function removeQueueEntry(queueEntryId) {
+  const { error } = await supabase.rpc('remove_queue_entry', {
+    p_queue_entry_id: queueEntryId,
+  })
+
+  throwIfError(error)
+}
+
+export function subscribeToDoctorQueue(doctorId, onChange, onStatus = () => {}) {
+  if (!doctorId) return () => {}
+
+  const channel = supabase
+    .channel(`queue:${doctorId}:${new Date().toISOString().slice(0, 10)}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'queue_entries',
+        filter: `doctor_id=eq.${doctorId}`,
+      },
+      onChange,
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') onStatus('Live')
+      if (status === 'CHANNEL_ERROR') onStatus('Offline')
+      if (status === 'TIMED_OUT') onStatus('Reconnecting')
+    })
+
+  return () => {
+    supabase.removeChannel(channel)
   }
-
-  const nextAbsentTokens = [...absentTokens, token];
-  localStorage.setItem(ABSENT_TOKENS_KEY, JSON.stringify(nextAbsentTokens));
-  return nextAbsentTokens;
 }

@@ -1,79 +1,57 @@
-const STAFF_SESSION_KEY = "mediqueue_staff_session";
+import { supabase } from '../lib/supabase'
+import { normalizeIndianPhone } from '../lib/phone'
 
-function saveStaffSession(session) {
-  localStorage.setItem(STAFF_SESSION_KEY, JSON.stringify(session));
+function genericStaffError() {
+  return new Error('Unable to sign in with those credentials.')
 }
 
-export function getStaffSession() {
-  const storedSession = localStorage.getItem(STAFF_SESSION_KEY);
+export async function getAppProfile(userId) {
+  if (!userId) return null
 
-  if (!storedSession) {
-    return null;
-  }
+  const { data, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
 
-  try {
-    return JSON.parse(storedSession);
-  } catch {
-    localStorage.removeItem(STAFF_SESSION_KEY);
-    return null;
-  }
+  if (error) throw error
+  return data
 }
 
-export function logoutStaff() {
-  localStorage.removeItem(STAFF_SESSION_KEY);
+export async function sendPatientOtp(phone) {
+  const normalizedPhone = normalizeIndianPhone(phone)
+  if (!normalizedPhone) throw new Error('Enter a valid 10-digit Indian mobile number.')
+
+  const { data, error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone })
+  if (error) throw error
+  return { data, phone: normalizedPhone }
 }
 
-// Placeholder auth services. Replace these implementations with Supabase calls later.
-export async function loginDoctor({ email, password }) {
-  if (!email || !password) {
-    throw new Error("Email and password are required.");
-  }
+export async function verifyPatientOtp({ phone, token }) {
+  const normalizedPhone = normalizeIndianPhone(phone)
+  const { data, error } = await supabase.auth.verifyOtp({
+    phone: normalizedPhone,
+    token,
+    type: 'sms',
+  })
 
-  const session = {
-    id: "doctor-demo",
-    role: "doctor",
-    email,
-  };
-
-  saveStaffSession(session);
-  return session;
+  if (error) throw error
+  return data
 }
 
-export async function loginReceptionist({ email, password }) {
-  if (!email || !password) {
-    throw new Error("Email and password are required.");
+export async function signInStaff({ email, password, expectedRole }) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw genericStaffError()
+
+  const profile = await getAppProfile(data.user?.id)
+  if (!profile?.is_active || profile.role !== expectedRole) {
+    await supabase.auth.signOut()
+    throw genericStaffError()
   }
 
-  const session = {
-    id: "receptionist-demo",
-    role: "receptionist",
-    email,
-  };
-
-  saveStaffSession(session);
-  return session;
+  return { ...data, profile }
 }
 
-export async function createDoctor({
-  name,
-  specialization,
-  email,
-  temporaryPassword,
-}) {
-  const session = getStaffSession();
-
-  if (session?.role !== "receptionist") {
-    throw new Error("Only receptionists can create doctor accounts.");
-  }
-
-  if (!name || !specialization || !email || !temporaryPassword) {
-    throw new Error("All doctor details are required.");
-  }
-
-  return {
-    id: crypto.randomUUID(),
-    name,
-    specialization,
-    email,
-  };
+export async function signOut() {
+  await supabase.auth.signOut()
 }

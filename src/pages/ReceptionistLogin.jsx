@@ -1,113 +1,83 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginReceptionist } from "../services/authService";
+import { useState } from 'react'
+import { ArrowLeft, ArrowRight, ClipboardList, Eye, EyeOff } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function ReceptionistLogin() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate()
+  const { loginStaff } = useAuth()
+  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((current) => ({
-      ...current,
-      [name]: value,
-    }));
-  };
+  function handleChange(event) {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError("");
-    setIsSubmitting(true);
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setError('')
+    setIsSubmitting(true)
 
     try {
-      await loginReceptionist(formData);
-      navigate("/receptionist-dashboard");
+      await loginStaff({ ...formData, expectedRole: 'receptionist' })
+      navigate('/receptionist-dashboard', { replace: true })
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-5">
-      <div className="w-full max-w-md">
-        <div className="flex justify-center items-center mb-6">
-          <h1 className="text-4xl font-bold text-blue-900">
-            MediQueue
-          </h1>
+    <div className="auth-panel">
+      <div className="auth-card">
+        <button className="button button--secondary" onClick={() => navigate('/roles')} type="button">
+          <ArrowLeft size={17} /> Role selection
+        </button>
+
+        <div className="auth-heading staff-heading">
+          <span className="auth-icon"><ClipboardList size={22} /></span>
+          <div>
+            <h2>Receptionist Login</h2>
+            <p>Sign in to manage clinic doctors, walk-ins, and active queues.</p>
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md border p-8">
-          <h2 className="text-xl font-semibold mb-2">
-            Receptionist Login
-          </h2>
+        <form className="form-stack" onSubmit={handleSubmit}>
+          <label className="field">
+            <span>Email</span>
+            <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="reception@clinic.com" autoComplete="email" required />
+          </label>
 
-          <p className="text-gray-500 mb-6">
-            Sign in to manage doctors, queues, and walk-in patients.
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-
+          <label className="field">
+            <span>Password</span>
+            <div className="input-with-action">
               <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="reception@clinic.com"
-                className="w-full border rounded-lg p-3 outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-
-              <input
-                type="password"
                 name="password"
+                type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter password"
-                className="w-full border rounded-lg p-3 outline-none focus:border-blue-500"
+                autoComplete="current-password"
+                required
               />
+              <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
+          </label>
 
-            {error && (
-              <p className="text-sm text-red-500">
-                {error}
-              </p>
-            )}
+          {error && <div className="form-message form-message--error">{error}</div>}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-300"
-            >
-              {isSubmitting ? "Signing in..." : "Login"}
-            </button>
-          </form>
-
-          <div className="mt-5 text-center">
-            <button
-              onClick={() => navigate("/roles")}
-              className="text-blue-600 hover:text-blue-800"
-            >
-              Back to role selection
-            </button>
-          </div>
-        </div>
+          <button className="button button--primary button--wide" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing in...' : 'Login'}
+            {!isSubmitting && <ArrowRight size={18} />}
+          </button>
+        </form>
       </div>
     </div>
-  );
+  )
 }

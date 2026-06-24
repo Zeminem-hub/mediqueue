@@ -1,31 +1,47 @@
-import { useNavigate } from "react-router-dom";
+import { Activity, ArrowLeft, BriefcaseMedical, ClipboardList, Stethoscope } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function RoleSelection() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+    <div className="auth-panel">
+      <div className="auth-card">
+        <div className="auth-mobile-brand staff-brand">
+          <span className="brand-mark"><Activity size={20} /></span>
+          MediQueue
+        </div>
 
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Select Role
-        </h1>
-
-        <button
-          onClick={() => navigate("/doctor-login")}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg mb-4"
-        >
-          Doctor
+        <button className="button button--secondary" type="button" onClick={() => navigate('/')}>
+          <ArrowLeft size={17} /> Patient access
         </button>
 
-        <button
-          onClick={() => navigate("/receptionist-login")}
-          className="w-full border border-blue-600 text-blue-600 py-3 rounded-lg"
-        >
-          Receptionist
-        </button>
+        <div className="auth-heading staff-heading">
+          <span className="auth-icon"><BriefcaseMedical size={22} /></span>
+          <div>
+            <h2>Staff access</h2>
+            <p>Select your clinic role to continue with email and password.</p>
+          </div>
+        </div>
 
+        <div className="role-choice-grid">
+          <button className="selection-card" onClick={() => navigate('/doctor-login')} type="button">
+            <span className="selection-icon"><Stethoscope size={24} /></span>
+            <span className="selection-content">
+              <strong>Doctor</strong>
+              <span>Manage your own queue only</span>
+            </span>
+          </button>
+
+          <button className="selection-card" onClick={() => navigate('/receptionist-login')} type="button">
+            <span className="selection-icon"><ClipboardList size={24} /></span>
+            <span className="selection-content">
+              <strong>Receptionist</strong>
+              <span>Administer doctors and queues</span>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
-  );
+  )
 }

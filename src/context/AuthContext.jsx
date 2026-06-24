@@ -1,19 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { getAppProfile, sendPatientOtp, signInStaff, signOut as signOutService, verifyPatientOtp } from '../services/authService'
 
 const AuthContext = createContext(null)
-
-function profileFromUser(user) {
-  if (!user) return null
-
-  return {
-    id: user.id,
-    full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-    role: user.user_metadata?.role || null,
-    clinic_id: user.user_metadata?.clinic_id || null,
-  }
-}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -25,23 +15,19 @@ export function AuthProvider({ children }) {
     if (!currentUser) {
       setProfile(null)
       setProfileError('')
-      return
+      return null
     }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', currentUser.id)
-      .maybeSingle()
-
-    if (error) {
-      setProfile(profileFromUser(currentUser))
+    try {
+      const appProfile = await getAppProfile(currentUser.id)
+      setProfile(appProfile)
+      setProfileError('')
+      return appProfile
+    } catch (error) {
+      setProfile(null)
       setProfileError(error.message)
-      return
+      return null
     }
-
-    setProfile(data || profileFromUser(currentUser))
-    setProfileError('')
   }, [])
 
   useEffect(() => {
@@ -59,18 +45,16 @@ export function AuthProvider({ children }) {
 
     initialize()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        const nextUser = session?.user ?? null
-        setUser(nextUser)
-        setLoading(true)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextUser = session?.user ?? null
+      setUser(nextUser)
+      setLoading(true)
 
-        window.setTimeout(async () => {
-          await fetchProfile(nextUser)
-          if (active) setLoading(false)
-        }, 0)
-      },
-    )
+      window.setTimeout(async () => {
+        await fetchProfile(nextUser)
+        if (active) setLoading(false)
+      }, 0)
+    })
 
     return () => {
       active = false
@@ -78,29 +62,27 @@ export function AuthProvider({ children }) {
     }
   }, [fetchProfile])
 
-  async function signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+  async function sendOtp(phone) {
+    return sendPatientOtp(phone)
+  }
+
+  async function verifyOtp(payload) {
+    const data = await verifyPatientOtp(payload)
+    setUser(data.user ?? null)
     return data
   }
 
-  async function signUp({ fullName, email, password }) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: 'patient',
-        },
-      },
-    })
-    if (error) throw error
+  async function loginStaff(payload) {
+    const data = await signInStaff(payload)
+    setUser(data.user ?? null)
+    setProfile(data.profile ?? null)
     return data
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
+    await signOutService()
+    setUser(null)
+    setProfile(null)
   }
 
   const value = useMemo(() => ({
@@ -108,8 +90,9 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     profileError,
-    signIn,
-    signUp,
+    sendOtp,
+    verifyOtp,
+    loginStaff,
     signOut,
     refreshProfile: () => fetchProfile(user),
   }), [user, profile, loading, profileError, fetchProfile])
