@@ -1,59 +1,62 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 
-import PatientLogin from "./pages/PatientLogin";
-import OtpVerification from "./pages/OtpVerification";
-import ClinicSelection from "./pages/ClinicSelection";
-import DoctorSelection from "./pages/DoctorSelection";
-import QueueConfirmation from "./pages/QueueConfirmation";
-import LiveQueueBoard from "./pages/LiveQueueBoard";
-import DoctorDashboard from "./pages/DoctorDashboard";
-import ReceptionistDashboard from "./pages/ReceptionistDashboard";
-import RoleSelection from "./pages/RoleSelection";
-import DoctorLogin from "./pages/DoctorLogin";
-import ReceptionistLogin from "./pages/ReceptionistLogin";
-import CreateDoctor from "./pages/CreateDoctor";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Login from './pages/auth/Login'
+import ClinicSelect from './pages/patient/ClinicSelect'
+import DoctorSelect from './pages/patient/DoctorSelect'
+import QueueBoard from './pages/patient/QueueBoard'
+import DoctorDashboard from './pages/doctor/DoctorDashboard'
+import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard'
+import Unauthorized from './pages/Unauthorized'
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<PatientLogin />} />
-        <Route path="/otp" element={<OtpVerification />} />
-        <Route path="/clinic" element={<ClinicSelection />} />
-        <Route path="/doctors" element={<DoctorSelection />} />
-        <Route path="/confirmation" element={<QueueConfirmation />} />
-        <Route path="/queue" element={<LiveQueueBoard />} />
-        <Route path="/roles" element={<RoleSelection />} />
-        <Route path="/doctor-login" element={<DoctorLogin />} />
-        <Route path="/receptionist-login" element={<ReceptionistLogin />} />
-        <Route
-          path="/doctor-dashboard"
-          element={
-            <ProtectedRoute allowedRole="doctor">
+      <AuthProvider>
+        <Routes>
+
+          {/* Public */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Patient routes */}
+          <Route path="/clinics" element={
+            <ProtectedRoute allowedRoles={['patient']}>
+              <ClinicSelect />
+            </ProtectedRoute>
+          } />
+          <Route path="/clinics/:clinicId/doctors" element={
+            <ProtectedRoute allowedRoles={['patient']}>
+              <DoctorSelect />
+            </ProtectedRoute>
+          } />
+          <Route path="/queue/:doctorId" element={
+            <ProtectedRoute allowedRoles={['patient']}>
+              <QueueBoard />
+            </ProtectedRoute>
+          } />
+
+          {/* Doctor routes */}
+          <Route path="/doctor/dashboard" element={
+            <ProtectedRoute allowedRoles={['doctor']}>
               <DoctorDashboard />
             </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/receptionist-dashboard"
-          element={
-            <ProtectedRoute allowedRole="receptionist">
+          } />
+
+          {/* Receptionist routes */}
+          <Route path="/receptionist/dashboard" element={
+            <ProtectedRoute allowedRoles={['receptionist']}>
               <ReceptionistDashboard />
             </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/create-doctor"
-          element={
-            <ProtectedRoute allowedRole="receptionist">
-              <CreateDoctor />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+          } />
 
-export default App;
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
