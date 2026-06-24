@@ -1,9 +1,28 @@
+import { ArrowLeft, ShieldX } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
 export default function Unauthorized() {
+  const navigate = useNavigate()
+  const { signOut } = useAuth()
+
+  async function useAnotherAccount() {
+    await signOut()
+    navigate('/login', { replace: true })
+  }
+
   return (
-    <div style={{ textAlign: 'center', padding: '4rem', fontFamily: 'Inter, sans-serif' }}>
-      <h1 style={{ color: '#1B3A5C' }}>Access Denied</h1>
-      <p style={{ color: '#5C6B7A' }}>You don't have permission to view this page.</p>
-      <a href="/login" style={{ color: '#2E75B6' }}>Go back to login</a>
+    <div className="centered-state">
+      <span className="state-icon state-icon--error"><ShieldX size={30} /></span>
+      <p className="eyebrow">Access restricted</p>
+      <h1>This workspace is not assigned to your account.</h1>
+      <p>Your MediQueue role controls which clinic tools you can open.</p>
+      <div className="centered-actions">
+        <button className="button button--secondary" onClick={() => navigate('/')}>
+          <ArrowLeft size={17} /> Go back
+        </button>
+        <button className="button button--primary" onClick={useAnotherAccount}>Use another account</button>
+      </div>
     </div>
   )
 }
