@@ -1,9 +1,18 @@
 import { useState } from "react";
+import { getPatientDisplayProfile } from "../services/patientService";
 
 export default function DoctorDashboard() {
   const [currentToken, setCurrentToken] = useState(11);
+  const patient = getPatientDisplayProfile();
 
-  const queue = [9, 10, 11, 12, 13, 14, 15];
+  const queue = [9, 10, 11, 12, 13, 14, 15].map((token) => ({
+    token,
+    patient:
+      token === patient.token
+        ? patient.name
+        : "Patient Queue Entry",
+    dob: token === patient.token ? patient.dob : "Not provided",
+  }));
 
   const callNext = () => {
     setCurrentToken(currentToken + 1);
@@ -99,7 +108,7 @@ export default function DoctorDashboard() {
 
                   <p className="text-2xl font-bold">
                     {queue.filter(
-                      (t) => t > currentToken
+                      (entry) => entry.token > currentToken
                     ).length}
                   </p>
                 </div>
@@ -168,19 +177,19 @@ export default function DoctorDashboard() {
 
               <div className="p-4 space-y-3">
 
-                {queue.map((token) => {
+                {queue.map((entry) => {
 
                   let status = "Waiting";
                   let style =
                     "bg-white border";
 
-                  if (token < currentToken) {
+                  if (entry.token < currentToken) {
                     status = "Completed";
                     style =
                       "bg-green-50 border-green-300";
                   }
 
-                  if (token === currentToken) {
+                  if (entry.token === currentToken) {
                     status = "Current";
                     style =
                       "bg-blue-100 border-blue-400";
@@ -188,23 +197,23 @@ export default function DoctorDashboard() {
 
                   return (
                     <div
-                      key={token}
+                      key={entry.token}
                       className={`flex justify-between items-center p-4 rounded-lg border ${style}`}
                     >
                       <div className="flex items-center gap-4">
 
                         <div className="h-12 w-12 rounded-lg border flex items-center justify-center font-bold">
-                          {token}
+                          {entry.token}
                         </div>
 
                         <div>
 
                           <p className="font-medium">
-                            Patient Queue Entry
+                            {entry.patient}
                           </p>
 
                           <p className="text-sm text-gray-500">
-                            Token #{token}
+                            DOB: {entry.dob} - Token #{entry.token}
                           </p>
 
                         </div>

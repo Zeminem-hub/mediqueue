@@ -12,14 +12,14 @@ export default function RoleSelection() {
         </h1>
 
         <button
-          onClick={() => navigate("/doctor-dashboard")}
+          onClick={() => navigate("/doctor-login")}
           className="w-full bg-blue-600 text-white py-3 rounded-lg mb-4"
         >
           Doctor
         </button>
 
         <button
-          onClick={() => navigate("/receptionist-dashboard")}
+          onClick={() => navigate("/receptionist-login")}
           className="w-full border border-blue-600 text-blue-600 py-3 rounded-lg"
         >
           Receptionist
