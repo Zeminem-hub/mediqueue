@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Activity, ArrowRight, BriefcaseMedical, Smartphone } from 'lucide-react'
+import { Activity, ArrowRight, BriefcaseMedical, Mail } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { savePendingPatientRegistration } from '../services/patientService'
+import { upsertPatientProfileEmail } from '../services/patientService'
 
 export default function PatientLogin() {
   const navigate = useNavigate()
