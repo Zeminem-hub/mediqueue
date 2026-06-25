@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { getAppProfile, sendPatientOtp, signInStaff, signOut as signOutService, verifyPatientOtp } from '../services/authService'
+import { getAppProfile, signUpPatientEmail, signInPatientEmail, signInStaff, signOut as signOutService } from '../services/authService'
 
 const AuthContext = createContext(null)
 
@@ -17,7 +17,6 @@ export function AuthProvider({ children }) {
       setProfileError('')
       return null
     }
-
     try {
       const appProfile = await getAppProfile(currentUser.id)
       setProfile(appProfile)
@@ -36,7 +35,6 @@ export function AuthProvider({ children }) {
     async function initialize() {
       const { data } = await supabase.auth.getSession()
       if (!active) return
-
       const nextUser = data.session?.user ?? null
       setUser(nextUser)
       await fetchProfile(nextUser)
@@ -49,7 +47,6 @@ export function AuthProvider({ children }) {
       const nextUser = session?.user ?? null
       setUser(nextUser)
       setLoading(true)
-
       window.setTimeout(async () => {
         await fetchProfile(nextUser)
         if (active) setLoading(false)
@@ -62,12 +59,13 @@ export function AuthProvider({ children }) {
     }
   }, [fetchProfile])
 
-  async function sendOtp(phone) {
-    return sendPatientOtp(phone)
+  async function registerPatient(payload) {
+    const data = await signUpPatientEmail(payload)
+    return data
   }
 
-  async function verifyOtp(payload) {
-    const data = await verifyPatientOtp(payload)
+  async function loginPatient(payload) {
+    const data = await signInPatientEmail(payload)
     setUser(data.user ?? null)
     return data
   }
@@ -90,8 +88,8 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     profileError,
-    sendOtp,
-    verifyOtp,
+    registerPatient,
+    loginPatient,
     loginStaff,
     signOut,
     refreshProfile: () => fetchProfile(user),

@@ -1,9 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import { OtpPendingRoute, PublicOnly, RoleRoute } from './components/ProtectedRoute'
+import { PublicOnly, RoleRoute } from './components/ProtectedRoute'
 
 import PatientLogin from './pages/PatientLogin'
-import OtpVerification from './pages/OtpVerification'
 import RoleSelection from './pages/RoleSelection'
 import DoctorLogin from './pages/DoctorLogin'
 import ReceptionistLogin from './pages/ReceptionistLogin'
@@ -20,7 +19,6 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<PublicOnly><PatientLogin /></PublicOnly>} />
-      <Route path="/otp" element={<OtpPendingRoute><OtpVerification /></OtpPendingRoute>} />
       <Route path="/roles" element={<PublicOnly><RoleSelection /></PublicOnly>} />
       <Route path="/doctor-login" element={<PublicOnly><DoctorLogin /></PublicOnly>} />
       <Route path="/receptionist-login" element={<PublicOnly><ReceptionistLogin /></PublicOnly>} />

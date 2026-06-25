@@ -1,5 +1,4 @@
 import { supabase } from '../lib/supabase'
-import { normalizeIndianPhone } from '../lib/phone'
 
 function genericStaffError() {
   return new Error('Unable to sign in with those credentials.')
@@ -18,24 +17,20 @@ export async function getAppProfile(userId) {
   return data
 }
 
-export async function sendPatientOtp(phone) {
-  const normalizedPhone = normalizeIndianPhone(phone)
-  if (!normalizedPhone) throw new Error('Enter a valid 10-digit Indian mobile number.')
+export async function signUpPatientEmail({ email, password, name, age }) {
+  if (!name?.trim()) throw new Error('Full name is required.')
+  if (!age || Number(age) < 1 || Number(age) > 120) throw new Error('Enter a valid age.')
+  if (!email?.trim()) throw new Error('Email is required.')
+  if (!password || password.length < 6) throw new Error('Password must be at least 6 characters.')
 
-  const { data, error } = await supabase.auth.signInWithOtp({ phone: normalizedPhone })
+  const { data, error } = await supabase.auth.signUp({ email: email.trim(), password })
   if (error) throw error
-  return { data, phone: normalizedPhone }
+  return data
 }
 
-export async function verifyPatientOtp({ phone, token }) {
-  const normalizedPhone = normalizeIndianPhone(phone)
-  const { data, error } = await supabase.auth.verifyOtp({
-    phone: normalizedPhone,
-    token,
-    type: 'sms',
-  })
-
-  if (error) throw error
+export async function signInPatientEmail({ email, password }) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw new Error('Incorrect email or password.')
   return data
 }
 

@@ -10,18 +10,11 @@ function loginPathFor(allowedRoles = []) {
 
 export function PublicOnly({ children }) {
   const { user, profile, loading } = useAuth()
-
   if (loading) return <LoadingScreen />
   if (!user || !profile?.role) return children
   if (profile.role === 'doctor') return <Navigate to="/doctor-dashboard" replace />
   if (profile.role === 'receptionist') return <Navigate to="/receptionist-dashboard" replace />
   return <Navigate to="/clinic" replace />
-}
-
-export function OtpPendingRoute({ children }) {
-  const pending = sessionStorage.getItem('mediqueue_pending_patient')
-  if (!pending) return <Navigate to="/" replace />
-  return children
 }
 
 export function RoleRoute({ allowedRoles }) {
