@@ -1,3 +1,6 @@
+// Route guards used by App.jsx. PublicOnly wraps login pages; RoleRoute
+// wraps dashboards. Both read auth state from AuthContext rather than
+// fetching anything themselves.
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import LoadingScreen from './LoadingScreen'
@@ -5,6 +8,7 @@ import LoadingScreen from './LoadingScreen'
 function loginPathFor(allowedRoles = []) {
   if (allowedRoles.includes('doctor')) return '/doctor-login'
   if (allowedRoles.includes('receptionist')) return '/receptionist-login'
+  if (allowedRoles.includes('admin')) return '/admin-login'
   return '/'
 }
 
@@ -14,6 +18,7 @@ export function PublicOnly({ children }) {
   if (!user || !profile?.role) return children
   if (profile.role === 'doctor') return <Navigate to="/doctor-dashboard" replace />
   if (profile.role === 'receptionist') return <Navigate to="/receptionist-dashboard" replace />
+  if (profile.role === 'admin') return <Navigate to="/admin-dashboard" replace />
   return <Navigate to="/clinic" replace />
 }
 

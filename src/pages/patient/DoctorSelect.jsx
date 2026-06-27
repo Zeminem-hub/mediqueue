@@ -1,3 +1,6 @@
+// Step 2: pick a doctor within the chosen clinic. Clicking a doctor calls
+// join_queue() immediately (via queueService.joinQueue) — there's no
+// separate "confirm" step, the token is assigned right here.
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, Clock3, Stethoscope, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

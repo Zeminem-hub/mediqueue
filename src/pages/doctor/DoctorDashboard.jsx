@@ -1,3 +1,6 @@
+// A doctor only ever sees and acts on their own queue — getOwnDoctor() looks
+// up the doctors row matching the signed-in user, and every action below is
+// scoped to that doctor.id. The RPCs double-check this server-side too.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Check, Clock3, Megaphone, RefreshCw, UserRound, Users } from 'lucide-react'
 import AppShell from '../../components/AppShell'

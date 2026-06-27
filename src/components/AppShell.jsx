@@ -1,3 +1,5 @@
+// Shared layout for every signed-in dashboard (doctor/receptionist/admin):
+// topbar with the current user + sign-out, and a consistent page heading.
 import { Activity, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 

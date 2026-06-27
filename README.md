@@ -1,16 +1,55 @@
-# React + Vite
+# MediQueue
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clinic queue management app. Patients join a virtual queue from their
+phone; doctors and receptionists manage it from a dashboard; admins manage
+clinics, receptionists, and doctors.
 
-Currently, two official plugins are available:
+## Roles
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Role | Access | Account creation |
+|---|---|---|
+| Patient | their own queue tickets | self-signup (email + password) |
+| Doctor | their own queue | invited by admin or their clinic's receptionist |
+| Receptionist | their clinic's doctors, walk-ins, queues | invited by admin |
+| Admin | all clinics, receptionists, doctors | created once by hand in Supabase |
 
-## React Compiler
+See [`docs/AUTH.md`](docs/AUTH.md) for the full auth/invite flow and
+[`docs/ADMIN_SETUP.md`](docs/ADMIN_SETUP.md) for how to bootstrap the first
+admin account.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- React 19 + Vite + React Router 7
+- Tailwind CSS (utility classes) + a small custom design system in `src/index.css`
+- Supabase: Postgres + Auth + Realtime + Edge Functions
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project layout
+
+```
+src/
+  pages/        route-level screens, see src/pages/README.md
+  components/   shared UI (AppShell, ProtectedRoute, InviteStaffForm, ...)
+  services/     all Supabase access lives here, see src/services/README.md
+  context/      AuthContext — the single source of truth for who's logged in
+  lib/          small framework-free helpers (supabase client, queue formatting)
+supabase/
+  migrations/   schema, see supabase/SCHEMA.md
+  functions/    Edge Functions, see supabase/functions/README.md
+docs/           architecture + auth design notes
+```
+
+## Local setup
+
+1. Copy `.env.example` to `.env` and fill in your Supabase project URL + anon key.
+2. `npm install`
+3. `npm run dev`
+
+The app will not do anything useful until the database is set up — see
+[`docs/ADMIN_SETUP.md`](docs/ADMIN_SETUP.md) for the one-time steps (run the
+migration, deploy the Edge Functions, create the first admin).
+
+## Scripts
+
+- `npm run dev` — start the Vite dev server
+- `npm run build` — production build
+- `npm run lint` — ESLint

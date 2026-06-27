@@ -1,4 +1,6 @@
-import { Activity, ArrowLeft, BriefcaseMedical, ClipboardList, Stethoscope } from 'lucide-react'
+// Staff entry point reached from PatientLogin's "Login as Doctor or
+// Receptionist" link. Just routes to the right login page per role.
+import { Activity, ArrowLeft, BriefcaseMedical, ClipboardList, ShieldCheck, Stethoscope } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function RoleSelection() {
@@ -38,6 +40,14 @@ export default function RoleSelection() {
             <span className="selection-content">
               <strong>Receptionist</strong>
               <span>Administer doctors and queues</span>
+            </span>
+          </button>
+
+          <button className="selection-card" onClick={() => navigate('/admin-login')} type="button">
+            <span className="selection-icon"><ShieldCheck size={24} /></span>
+            <span className="selection-content">
+              <strong>Admin</strong>
+              <span>Manage clinics, receptionists, and doctors</span>
             </span>
           </button>
         </div>

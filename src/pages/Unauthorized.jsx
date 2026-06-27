@@ -1,3 +1,5 @@
+// Shown by RoleRoute when a signed-in user's role doesn't match the route
+// they tried to open (e.g. a doctor hitting /receptionist-dashboard).
 import { ArrowLeft, ShieldX } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -8,7 +10,7 @@ export default function Unauthorized() {
 
   async function useAnotherAccount() {
     await signOut()
-    navigate('/login', { replace: true })
+    navigate('/', { replace: true })
   }
 
   return (

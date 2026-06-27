@@ -1,3 +1,5 @@
+// Step 3: shows the token just assigned by join_queue() before the patient
+// moves to the live QueueBoard. Read-only — no further queue actions here.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowRight, CheckCircle2, Clock3 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

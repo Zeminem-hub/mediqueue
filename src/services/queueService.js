@@ -1,3 +1,7 @@
+// All queue reads/writes. Every write here calls a Postgres RPC (not a raw
+// table insert/update) because token assignment must be atomic and the
+// authorization rules ("only this doctor, their clinic's receptionist, or
+// admin") are easier to express in SQL than in RLS — see supabase/SCHEMA.md.
 import { supabase } from '../lib/supabase'
 
 function throwIfError(error) {
@@ -59,6 +63,10 @@ export async function removeQueueEntry(queueEntryId) {
   throwIfError(error)
 }
 
+// Opens a Supabase Realtime channel for one doctor's queue_entries rows and
+// calls onChange on every insert/update/delete, so dashboards/queue boards
+// update live instead of polling. The channel name includes today's date so
+// it naturally re-subscribes to a fresh channel after midnight.
 export function subscribeToDoctorQueue(doctorId, onChange, onStatus = () => {}) {
   if (!doctorId) return () => {}
 

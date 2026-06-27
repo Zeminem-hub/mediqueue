@@ -1,3 +1,6 @@
+// Best-effort normalization of an Indian mobile number to E.164 (+91...).
+// Mirrors public.normalize_phone() in the database so the client can
+// validate before submitting instead of round-tripping to find out it's bad.
 export function normalizeIndianPhone(value) {
   const digits = String(value || '').replace(/\D/g, '')
 

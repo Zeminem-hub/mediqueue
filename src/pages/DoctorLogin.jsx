@@ -1,19 +1,33 @@
+// Doctor sign-in only — there is no doctor signup form. Accounts are
+// created exclusively via the invite-staff flow (see docs/AUTH.md).
 import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Stethoscope } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+const FORM_KEY = 'mediqueue_doctor_login_form'
+
 export default function DoctorLogin() {
   const navigate = useNavigate()
   const { loginStaff } = useAuth()
-  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [formData, setFormData] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(FORM_KEY) || 'null') || { email: '', password: '' }
+    } catch {
+      return { email: '', password: '' }
+    }
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function handleChange(event) {
     const { name, value } = event.target
-    setFormData((current) => ({ ...current, [name]: value }))
+    setFormData((current) => {
+      const next = { ...current, [name]: value }
+      sessionStorage.setItem(FORM_KEY, JSON.stringify(next))
+      return next
+    })
   }
 
   async function handleSubmit(event) {
@@ -23,6 +37,7 @@ export default function DoctorLogin() {
 
     try {
       await loginStaff({ ...formData, expectedRole: 'doctor' })
+      sessionStorage.removeItem(FORM_KEY)
       navigate('/doctor-dashboard', { replace: true })
     } catch (err) {
       setError(err.message)
@@ -72,7 +87,7 @@ export default function DoctorLogin() {
 
           {error && <div className="form-message form-message--error">{error}</div>}
 
-          <button className="button button--primary button--wide" disabled={isSubmitting}>
+          <button className="button button--primary button--wide" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Login'}
             {!isSubmitting && <ArrowRight size={18} />}
           </button>

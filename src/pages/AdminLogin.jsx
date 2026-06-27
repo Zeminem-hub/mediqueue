@@ -1,13 +1,15 @@
-// Receptionist sign-in only — accounts are created exclusively by admin
-// via the invite-staff flow (see docs/AUTH.md), never self-signed-up.
+// Admin sign-in only. The very first admin is created by hand directly in
+// Supabase (see docs/ADMIN_SETUP.md) — every admin after that could in
+// principle be invited the same way doctors/receptionists are, but today
+// this app only ever has the one hand-created admin account.
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, ClipboardList, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const FORM_KEY = 'mediqueue_receptionist_login_form'
+const FORM_KEY = 'mediqueue_admin_login_form'
 
-export default function ReceptionistLogin() {
+export default function AdminLogin() {
   const navigate = useNavigate()
   const { loginStaff } = useAuth()
   const [formData, setFormData] = useState(() => {
@@ -36,9 +38,9 @@ export default function ReceptionistLogin() {
     setIsSubmitting(true)
 
     try {
-      await loginStaff({ ...formData, expectedRole: 'receptionist' })
+      await loginStaff({ ...formData, expectedRole: 'admin' })
       sessionStorage.removeItem(FORM_KEY)
-      navigate('/receptionist-dashboard', { replace: true })
+      navigate('/admin-dashboard', { replace: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -54,17 +56,17 @@ export default function ReceptionistLogin() {
         </button>
 
         <div className="auth-heading staff-heading">
-          <span className="auth-icon"><ClipboardList size={22} /></span>
+          <span className="auth-icon"><ShieldCheck size={22} /></span>
           <div>
-            <h2>Receptionist Login</h2>
-            <p>Sign in to manage clinic doctors, walk-ins, and active queues.</p>
+            <h2>Admin Login</h2>
+            <p>Sign in to manage clinics, receptionists, and doctors.</p>
           </div>
         </div>
 
         <form className="form-stack" onSubmit={handleSubmit}>
           <label className="field">
             <span>Email</span>
-            <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="reception@clinic.com" autoComplete="email" required />
+            <input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="admin@mediqueue.com" autoComplete="email" required />
           </label>
 
           <label className="field">

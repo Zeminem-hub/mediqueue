@@ -1,3 +1,5 @@
+// Step 4: live queue position for the patient's own token, updated via
+// Supabase Realtime (subscribeToDoctorQueue) instead of polling.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, CheckCircle2, Clock3, RefreshCw, UserRound } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

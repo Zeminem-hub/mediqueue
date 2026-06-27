@@ -1,3 +1,7 @@
+// Doctor reads. listDoctors(clinicId) is used two ways: the receptionist
+// dashboard always passes its own clinic_id (RLS + the UI both keep them
+// scoped to one clinic), while the admin dashboard calls it with no
+// argument to see every doctor across every clinic.
 import { supabase } from '../lib/supabase'
 
 function throwIfError(error) {

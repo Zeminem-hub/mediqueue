@@ -1,3 +1,6 @@
+// Step 1 of the patient flow: pick a clinic. Stores the choice in
+// sessionStorage for DoctorSelect/QueueConfirmation/QueueBoard to read —
+// there's no global "current booking" state, just this handoff.
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Building2, MapPin, Search, Stethoscope } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'

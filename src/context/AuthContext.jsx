@@ -1,4 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
+// Single source of truth for "who is signed in and what can they do".
+// Every page reads { user, profile, loading } from useAuth() instead of
+// calling Supabase directly. `user` is the raw Supabase Auth user; `profile`
+// is the matching public.users row (carries role/clinic_id/is_active) — see
+// authService.getAppProfile. `profile` is null while it's still loading or
+// if the user has no profile row yet.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { getAppProfile, signUpPatientEmail, signInPatientEmail, signInStaff, signOut as signOutService } from '../services/authService'
@@ -46,7 +52,9 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null
       setUser(nextUser)
-      setLoading(true)
+      // setTimeout(0) defers the profile fetch out of this callback — Supabase
+      // warns against awaiting inside onAuthStateChange itself (it can deadlock
+      // the auth client on some token-refresh events).
       window.setTimeout(async () => {
         await fetchProfile(nextUser)
         if (active) setLoading(false)

@@ -1,3 +1,8 @@
+// A patient's own profile. Unlike staff accounts, patients write these rows
+// directly (no Edge Function) — the "patient self-registers" / "patient
+// manages own profile" RLS policies in 0001_init.sql only let a patient
+// touch the row matching their own auth.uid(), so this is safe even though
+// it's a plain table upsert.
 import { supabase } from '../lib/supabase'
 
 function throwIfError(error) {

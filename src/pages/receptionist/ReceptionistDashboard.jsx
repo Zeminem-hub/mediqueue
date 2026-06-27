@@ -1,9 +1,13 @@
+// Everything here is scoped to the receptionist's own clinic (profile.clinic_id):
+// listDoctors(clinicId) only returns this clinic's doctors, and the RPCs/Edge
+// Functions backing every action re-check that scoping server-side, so this
+// page can't be tricked into touching another clinic's data even via devtools.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Check, Clock3, Megaphone, Plus, RefreshCw, Stethoscope, Trash2, UserRound, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AppShell from '../../components/AppShell'
 import { useAuth } from '../../context/AuthContext'
-import { disableDoctor, editDoctorAccount, enableDoctor, resetDoctorPassword } from '../../services/adminService'
+import { setDoctorActive, updateDoctorDetails } from '../../services/staffService'
 import { listDoctors } from '../../services/doctorService'
 import {
   addWalkInPatient,
@@ -89,18 +93,11 @@ export default function ReceptionistDashboard() {
     if (!name) return
     const specialization = window.prompt('Specialization', doctor.specialization)
     if (!specialization) return
-    await runAction(`edit-${doctor.id}`, () => editDoctorAccount({ doctorId: doctor.id, name, specialization }))
-  }
-
-  async function handleResetPassword(doctor) {
-    const temporaryPassword = window.prompt(`Temporary password for ${doctor.name}`)
-    if (!temporaryPassword) return
-    await runAction(`reset-${doctor.id}`, () => resetDoctorPassword({ doctorId: doctor.id, temporaryPassword }))
+    await runAction(`edit-${doctor.id}`, () => updateDoctorDetails({ doctorId: doctor.id, name, specialization }))
   }
 
   async function handleToggleDoctor(doctor) {
-    const action = doctor.is_active ? disableDoctor : enableDoctor
-    await runAction(`toggle-${doctor.id}`, () => action(doctor.id))
+    await runAction(`toggle-${doctor.id}`, () => setDoctorActive({ doctorId: doctor.id, isActive: !doctor.is_active }))
   }
 
   return (
@@ -206,9 +203,6 @@ export default function ReceptionistDashboard() {
             <div className="doctor-admin-bar">
               <button className="button button--small button--secondary" onClick={() => handleEditDoctor(selectedDoctor)}>
                 Edit Doctor
-              </button>
-              <button className="button button--small button--secondary" onClick={() => handleResetPassword(selectedDoctor)}>
-                Reset Password
               </button>
               <button className="button button--small button--danger-quiet" onClick={() => handleToggleDoctor(selectedDoctor)}>
                 {selectedDoctor.is_active ? 'Disable' : 'Enable'}

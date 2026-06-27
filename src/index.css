@@ -1,22 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+/* Minimalist design tokens: one neutral scale + one accent (mint). The old
+   theme used a heavy navy/gradient "hero" look — this keeps the same page
+   structure but flattens shadows, borders, and color usage everywhere. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
   font-family: 'DM Sans', sans-serif;
-  color: #17202e;
-  background: #f4f7f9;
+  color: #1a1f26;
+  background: #fafafa;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --navy: #123247;
-  --navy-deep: #0b2537;
+  --navy: #1a1f26;
+  --navy-deep: #14181e;
   --blue: #2176a5;
-  --mint: #25b58a;
-  --mint-pale: #e4f7f0;
-  --amber: #e9a23b;
-  --red: #d45d62;
-  --ink: #17202e;
-  --muted: #647282;
-  --border: #dce4e9;
+  --mint: #1f9d77;
+  --mint-pale: #eaf6f1;
+  --amber: #b9791f;
+  --red: #c0454f;
+  --ink: #1a1f26;
+  --muted: #6b7280;
+  --border: #e6e8eb;
   --surface: #ffffff;
 }
 
@@ -66,9 +69,8 @@ p {
 
 h1,
 h2,
-h3,
-.brand {
-  font-family: 'Manrope', sans-serif;
+h3 {
+  font-weight: 800;
 }
 
 .brand {
@@ -222,18 +224,6 @@ h3,
   overflow: hidden;
 }
 
-.auth-story::after {
-  content: '';
-  width: 310px;
-  height: 310px;
-  position: absolute;
-  right: -118px;
-  bottom: 78px;
-  border: 44px solid #17425a;
-  border-radius: 50%;
-  opacity: 0.65;
-}
-
 .auth-story-copy {
   max-width: 540px;
   position: relative;
@@ -374,7 +364,8 @@ h3,
   font-weight: 700;
 }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   height: 48px;
   padding: 0 14px;
@@ -386,7 +377,8 @@ h3,
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.field input:focus {
+.field input:focus,
+.field select:focus {
   border-color: #238db5;
   box-shadow: 0 0 0 3px rgba(35, 141, 181, 0.12);
 }
@@ -494,7 +486,6 @@ h3,
   background: #fff;
   border: 1px solid #cbd7dd;
   border-radius: 7px;
-  font-family: 'Manrope', sans-serif;
   font-size: 22px;
   font-weight: 800;
   outline: 0;
@@ -531,7 +522,7 @@ h3,
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 3px 12px rgba(17, 45, 61, 0.04);
+  box-shadow: none;
 }
 
 .confirmation-icon {
@@ -549,7 +540,6 @@ h3,
 .confirmation-token {
   display: block;
   color: #4c1d95;
-  font-family: 'Manrope', sans-serif;
   font-size: 58px;
   font-variant-numeric: tabular-nums;
 }
@@ -747,13 +737,13 @@ h3,
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(17, 45, 61, 0.04);
+  box-shadow: none;
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
 .selection-card:hover {
   border-color: #8fb3c2;
-  box-shadow: 0 7px 22px rgba(17, 45, 61, 0.08);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
@@ -775,7 +765,6 @@ h3,
 
 .selection-content > strong {
   color: var(--navy-deep);
-  font-family: 'Manrope', sans-serif;
   font-size: 19px;
 }
 
@@ -815,7 +804,7 @@ h3,
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 3px 12px rgba(17, 45, 61, 0.05);
+  box-shadow: none;
 }
 
 .doctor-avatar {
@@ -978,7 +967,6 @@ h3,
 
 .queue-hero-main > strong {
   color: #fff;
-  font-family: 'Manrope', sans-serif;
   font-size: 92px;
   line-height: 1.06;
   font-variant-numeric: tabular-nums;
@@ -1009,7 +997,6 @@ h3,
 .queue-hero-side > strong {
   margin: 4px 0 12px;
   color: #6ce0bd;
-  font-family: 'Manrope', sans-serif;
   font-size: 48px;
   font-variant-numeric: tabular-nums;
 }
@@ -1105,7 +1092,6 @@ h3,
 
 .metric strong {
   color: var(--navy-deep);
-  font-family: 'Manrope', sans-serif;
   font-size: 23px;
   font-variant-numeric: tabular-nums;
 }
@@ -1115,7 +1101,7 @@ h3,
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 3px 12px rgba(17, 45, 61, 0.04);
+  box-shadow: none;
 }
 
 .panel-heading {
@@ -1162,7 +1148,6 @@ h3,
 
 .token strong {
   color: var(--navy);
-  font-family: 'Manrope', sans-serif;
   font-size: 19px;
   font-variant-numeric: tabular-nums;
 }
@@ -1242,7 +1227,6 @@ h3,
 
 .current-token strong {
   color: #fff;
-  font-family: 'Manrope', sans-serif;
   font-size: 76px;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -1352,7 +1336,6 @@ h3,
   background: #eef3f5;
   border: 1px solid #dce4e8;
   border-radius: 7px;
-  font-family: 'Manrope', sans-serif;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -1380,6 +1363,51 @@ h3,
   display: grid;
   grid-template-columns: minmax(250px, 0.62fr) minmax(520px, 1.38fr);
   gap: 18px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-panel-wide {
+  grid-column: 1 / -1;
+}
+
+.admin-list {
+  display: grid;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e6ebee;
+}
+
+.admin-row:last-child {
+  border-bottom: 0;
+}
+
+.admin-row-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.admin-row-info strong {
+  color: var(--navy-deep);
+  font-size: 14px;
+}
+
+.admin-row-info > span {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .doctor-switcher {
@@ -1610,7 +1638,8 @@ h3,
   }
 
   .dashboard-grid,
-  .reception-grid {
+  .reception-grid,
+  .admin-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1644,7 +1673,6 @@ h3,
     gap: 9px;
     margin-bottom: 28px;
     color: var(--navy-deep);
-    font-family: 'Manrope', sans-serif;
     font-size: 20px;
     font-weight: 800;
   }

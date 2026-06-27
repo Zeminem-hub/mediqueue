@@ -1,3 +1,5 @@
+// Patient-facing clinic reads. Only active clinics are shown here — admin's
+// listAllClinics() in staffService.js is the one that also sees inactive ones.
 import { supabase } from '../lib/supabase'
 
 function throwIfError(error) {

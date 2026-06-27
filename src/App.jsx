@@ -1,3 +1,7 @@
+// Route table for the whole app. PublicOnly guards login pages (redirects
+// away if already signed in); RoleRoute guards dashboards (redirects to the
+// right login page if signed out, or /unauthorized if the role doesn't
+// match). See src/components/ProtectedRoute.jsx and docs/ARCHITECTURE.md.
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { PublicOnly, RoleRoute } from './components/ProtectedRoute'
@@ -6,12 +10,14 @@ import PatientLogin from './pages/PatientLogin'
 import RoleSelection from './pages/RoleSelection'
 import DoctorLogin from './pages/DoctorLogin'
 import ReceptionistLogin from './pages/ReceptionistLogin'
+import AdminLogin from './pages/AdminLogin'
 import ClinicSelect from './pages/patient/ClinicSelect'
 import DoctorSelect from './pages/patient/DoctorSelect'
 import QueueBoard from './pages/patient/QueueBoard'
 import QueueConfirmation from './pages/QueueConfirmation'
 import DoctorDashboard from './pages/doctor/DoctorDashboard'
 import ReceptionistDashboard from './pages/receptionist/ReceptionistDashboard'
+import AdminDashboard from './pages/admin/AdminDashboard'
 import CreateDoctor from './pages/CreateDoctor'
 import Unauthorized from './pages/Unauthorized'
 
@@ -22,6 +28,7 @@ function AppRoutes() {
       <Route path="/roles" element={<PublicOnly><RoleSelection /></PublicOnly>} />
       <Route path="/doctor-login" element={<PublicOnly><DoctorLogin /></PublicOnly>} />
       <Route path="/receptionist-login" element={<PublicOnly><ReceptionistLogin /></PublicOnly>} />
+      <Route path="/admin-login" element={<PublicOnly><AdminLogin /></PublicOnly>} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route element={<RoleRoute allowedRoles={['patient']} />}>
@@ -38,6 +45,10 @@ function AppRoutes() {
       <Route element={<RoleRoute allowedRoles={['receptionist']} />}>
         <Route path="/receptionist-dashboard" element={<ReceptionistDashboard />} />
         <Route path="/create-doctor" element={<CreateDoctor />} />
+      </Route>
+
+      <Route element={<RoleRoute allowedRoles={['admin']} />}>
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
